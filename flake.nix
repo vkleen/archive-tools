@@ -11,6 +11,10 @@
     flake-utils = {
       url = github:numtide/flake-utils;
     };
+
+    dymopipe = {
+      url = github:vkleen/dymopipe;
+    };
   };
 
   outputs = { self, nixpkgs, ...}@inputs: {
@@ -39,9 +43,6 @@
         weasyprint = prev.weasyprint.overridePythonAttrs (o: {
           patches = pkgs.lib.head o.patches;
         });
-        blake3-experimental-c = prev.blake3-experimental-c.overridePythonAttrs (o: {
-          src = "${o.src}/c_impl";
-        });
       });
 
       extraBuildInputs = [];
@@ -52,7 +53,14 @@
       };
 
       archive = pkgs.poetry2nix.mkPoetryApplication
-        (poetryArgs // { propagatedBuildInputs = extraBuildInputs; });
+        (poetryArgs // {
+          propagatedBuildInputs = extraBuildInputs;
+          preFixup = ''
+            for p in $out/bin/*; do
+              wrapProgram "$p" --suffix-each PATH : "${inputs.dymopipe.defaultPackage.${system}}/bin:${pkgs.imagemagick}/bin:${pkgs.ghostscript}/bin"
+            done
+          '';
+        });
       poetryShell = pkgs.poetry2nix.mkPoetryEnv poetryArgs;
     in rec {
       defaultPackage = packages.archive;

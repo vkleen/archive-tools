@@ -31,10 +31,8 @@ python-versions = "*"
 develop = false
 
 [package.source]
-type = "git"
-url = "https://github.com/oconnor663/blake3-py"
-reference = "HEAD"
-resolved_reference = "dc5a23e303f643991fc4f74e23239aa11155aaf0"
+type = "directory"
+url = "blake3_py/c_impl"
 
 [[package]]
 name = "brotli"
@@ -432,7 +430,7 @@ test = ["pytest"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "9ba9beb8385c92e2f97bd62edf0f479029462b64dc86bc88f1638dcb9c72f67f"
+content-hash = "92459905fc52981ed702f2da2e4180e8e7a82add755f64366bf8448897dea6c0"
 
 [metadata.files]
 blabel = []
