@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "archive"
+version = "0.1.0"
+description = ""
+authors = ["Viktor Kleen <viktor@kleen.org>"]
+
+[tool.poetry.scripts]
+"label-gen" = 'archive.__main__:label_gen'
+"new-id" = 'archive.__main__:new_id'
+
+[tool.poetry.dependencies]
+python = "^3.8"
+blabel = { git = "https://github.com/Edinburgh-Genome-Foundry/blabel" }
+pdf2image = "^1.16.0"
+pikepdf = "^5.4.2"
+pynentry = "^0.1.6"
+pyzbar = { git = "https://github.com/NaturalHistoryMuseum/pyzbar" }
+urllib3 = "^1.26.11"
+xmltodict = "^0.13.0"
+blake3-experimental-c = { git = "https://github.com/oconnor663/blake3-py", subdirectory = "c_impl" }
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
