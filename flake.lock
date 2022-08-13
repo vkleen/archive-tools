@@ -12,11 +12,11 @@
         "vinyl": "vinyl"
       },
       "locked": {
-        "lastModified": 1660262777,
-        "narHash": "sha256-Pu6RgFdidxGZNjpv1TkecXEvIZJ82KvFB0R9MWLQvpI=",
+        "lastModified": 1660392688,
+        "narHash": "sha256-15/U14xOg1ojgQ4DdI3d+s5dHrpKfn5PJsABnF/zSPs=",
         "owner": "vkleen",
         "repo": "dymopipe",
-        "rev": "635930d25a2eff5fa45c302740883df857836715",
+        "rev": "c6dc8870644c457bbe1293690b5bfcbb544f97d3",
         "type": "github"
       },
       "original": {

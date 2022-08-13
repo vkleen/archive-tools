@@ -6,12 +6,7 @@ from weasyprint import CSS
 from pikepdf import Pdf, Page, Rectangle
 from io import BytesIO
 
-from typing import Iterable
-
-def print_command(print):
-    print_pipeline = "| dymopipe compile -t label --density normal -l c | dymopipe label"
-    preview_pipeline = "| imv -"
-    return f"convert -density 300x300 pdf:- -colorspace gray -type grayscale -auto-threshold OTSU png:- {print_pipeline if print else preview_pipeline}"
+from typing import Iterable, List
 
 label_template = """
 <div class='page'>
@@ -27,7 +22,7 @@ label_template = """
 box_label_css = """
 @page {
   size: 101mm 54mm;
-  padding: 5mm;
+  padding: 5mm 5mm 5mm 11mm;
   display: flex;
   align-items: center;
 }
@@ -90,15 +85,36 @@ img.code {
 }
 """
 
-def box_label(id_str: str, print=False):
+def build_dymo_commands(pdf, page):
+    proc = subprocess.run(
+        f"convert -density 600x300 pdf:-[{page}] -colorspace gray -type grayscale -auto-threshold OTSU png:- | dymopipe compile -t label --hi-dpi --density normal",
+        shell = True, input = pdf, capture_output=True)
+    proc.check_returncode()
+    return proc.stdout
+
+def box_labels(id_strs: List[str], print=False, save=None):
+    def make_record(id_str):
+        id_split = '<br/>'.join(id_str[i:i+16] for i in range(0, len(id_str), 16))
+        return {
+            "url": f"https://paperless.kleen.org/archive/box/{id_str}",
+            "id": id_split,
+        }
+
     writer = LabelWriter(item_template=label_template, default_stylesheets=(CSS(string=box_label_css),))
-    id_split = '<br/>'.join(id_str[i:i+16] for i in range(0, len(id_str), 16))
-    records =  [ {
-        "url": f"https://paperless.kleen.org/archive/box/{id_str}",
-        "id": id_split,
-    } ]
-    label_pdf = writer.write_labels(records)
-    subprocess.run(print_command(print), shell = True, input = label_pdf)
+    records =  list(make_record(id_str) for id_str in id_strs)
+    pdf_bytes = writer.write_labels(records)
+    if save and pdf_bytes:
+        with open(save, 'wb') as f:
+           f.write(pdf_bytes)
+        return
+
+    if not print:
+        subprocess.run("zathura -", shell = True, input = pdf_bytes)
+    else:
+        
+        for i,_ in enumerate(id_strs):
+            cmds = build_dymo_commands(pdf_bytes, i)
+            subprocess.run(f'dymopipe label -f {"short" if i < len(id_strs)-1 else "long"}', shell = True, input = cmds)
 
 # PDF units are 1/72", 1" = 25.4mm, 1mm = 72/25.4 1/72"
 PDF_MM = 72/25.4
