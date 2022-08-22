@@ -6,10 +6,10 @@ authors = ["Viktor Kleen <viktor@kleen.org>"]
 
 [tool.poetry.scripts]
 "box-label" = 'archive.__main__:box_label_gen'
-"new-id" = 'archive.__main__:new_id'
 "archive-map" = 'archive.__main__:archive_map'
 "folder-label" = 'archive.__main__:folder_label_gen'
 "documents" = 'archive.__main__:documents'
+"new-id" = 'archive.__main__:new_id'
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -21,7 +21,6 @@ pyzbar = { git = "https://github.com/NaturalHistoryMuseum/pyzbar" }
 urllib3 = "^1.26.11"
 xmltodict = "^0.13.0"
 blake3-experimental-c = { path = "./blake3_py/c_impl" }
-jsons = "^1.6.3"
 
 [tool.poetry.dev-dependencies]
 
