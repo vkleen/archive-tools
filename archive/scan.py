@@ -1,6 +1,7 @@
 import time
 import urllib3
 import xmltodict
+import subprocess
 
 import logging
 
@@ -112,10 +113,10 @@ def pdf_to_bytes(pdf):
     pdf.save(bytes)
     return bytes.getvalue()
 
-def interleave_front_back(front_data, back_data, opts):
-    def new_doc(doc_data):
-        return Document(data = doc_data, id = new_archive_id(doc_data))
+def new_doc(doc_data):
+    return Document(data = doc_data, id = new_archive_id(doc_data))
 
+def interleave_front_back(front_data, back_data, opts):
     docs = []
 
     dst = Pdf.new()
@@ -149,6 +150,27 @@ def interleave_front_back(front_data, back_data, opts):
 
     return docs
 
+def yes_or_no(q):
+    try:
+        while True:
+            reply = str(input(q + ' (Y/n): ')).lower().strip()
+            if reply == "" or reply[0] == 'y':
+                return True
+            if reply[0] == 'n':
+                return False
+    except EOFError:
+        return False
+
+def scan_pdf_flatbed(http, scanner_dpi):
+    dst = Pdf.new()
+    while yes_or_no("Scan page?"):
+        wait_for_status(http, lambda status: status["pwg:State"] == "Idle")
+        next = Pdf.open(BytesIO(scan_pdf(http, "Flatbed", scanner_dpi)))
+        for p in next.pages:
+            dst.pages.append(p)
+
+    return new_doc(pdf_to_bytes(dst))
+
 def scan_documents(opts):
     def status_check(status):
         return status["pwg:State"] == "Idle" and (status["scan:AdfState"] == "ScannerAdfLoaded" if opts.scanner_source == "ADF" else True)
@@ -162,13 +184,12 @@ def scan_documents(opts):
         if SOURCE_CAPS_VAL[opts.scanner_source] not in caps:
             raise ValueError(f'Scanner does not support source type "{opts.scanner_source}"')
 
+        if opts.scanner_source == "Flatbed":
+            return [scan_pdf_flatbed(http, opts.scanner_dpi)]
+
         wait_for_status(http, status_check)
         front_data = scan_pdf(http, opts.scanner_source, opts.scanner_dpi)
-
         if opts.duplex:
-            if opts.scanner_source == "Flatbed":
-                input("Press Enter to scan backside...")
-
             wait_for_status(http, status_check)
             back_data = scan_pdf(http, opts.scanner_source, opts.scanner_dpi)
         else:
