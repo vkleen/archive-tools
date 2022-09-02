@@ -197,4 +197,7 @@ def documents():
 
             a = get_archive_map()
             ids = [d.id for d in docs]
+            for i in ids:
+               print(f'{i:010d}')
+            print('')
             print_placements(a, ids)
