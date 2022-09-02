@@ -1,4 +1,4 @@
-from .wordlist import wordlist,remainders
+from .wordlist import wordlist
 import itertools
 
 BASE = len(wordlist)
