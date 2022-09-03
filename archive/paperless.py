@@ -38,5 +38,5 @@ def push_document(http, doc: Document):
                  headers = authorization_header(),
                  fields = {
                      'title': f'{doc.id:010d}',
-                     'document': ('document.pdf', doc.data, 'application/pdf')
+                     'document': (f'{doc.id:010d}.pdf', doc.data, 'application/pdf')
                  })
