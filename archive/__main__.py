@@ -138,6 +138,9 @@ def documents_cli():
 
     subparsers.add_parser('new-id', help='Generate a fresh document ID')
 
+    subparsers.add_parser('push', help='Push a PDF from stdin into paperless') \
+        .add_argument('file', nargs='?', type=argparse.FileType('rb'), default=sys.stdin.buffer)
+
     return p
 
 class DocumentPlacement:
@@ -201,3 +204,9 @@ def documents():
                print(f'{i:010d}')
             print('')
             print_placements(a, ids)
+
+        case 'push':
+            filename = opts.file.name
+            doc = opts.file.read()
+            with paperless.pool_manager() as http:
+                paperless.push(http, doc, filename, filename)

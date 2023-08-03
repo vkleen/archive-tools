@@ -17,7 +17,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, ...}@inputs: {
+  outputs = { self, nixpkgs, ... }@inputs: {
     overlay = nixpkgs.lib.composeManyExtensions [
       inputs.poetry2nix.overlay
     ];
@@ -38,14 +38,14 @@
           '';
         });
         pydyf = prev.pydyf.overridePythonAttrs (o: {
-          nativeBuildInputs = (o.nativeBuildInputs or []) ++ [ final.flit-core ];
+          nativeBuildInputs = (o.nativeBuildInputs or [ ]) ++ [ final.flit-core ];
         });
         weasyprint = prev.weasyprint.overridePythonAttrs (o: {
           patches = pkgs.lib.head o.patches;
         });
       });
 
-      extraBuildInputs = [];
+      extraBuildInputs = [ ];
 
       poetryArgs = {
         projectDir = ./.;
@@ -62,16 +62,18 @@
           '';
         });
       poetryShell = pkgs.poetry2nix.mkPoetryEnv poetryArgs;
-    in rec {
-      defaultPackage = packages.archive;
-      packages = {
+    in
+    {
+      packages = rec {
         inherit archive;
+        default = archive;
       };
 
       devShell = pkgs.mkShell {
         inputsFrom = [ poetryShell.env ];
         buildInputs = [
-          pkgs.pyright pkgs.poetry
+          pkgs.pyright
+          pkgs.poetry
         ] ++ extraBuildInputs;
       };
     }

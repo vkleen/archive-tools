@@ -34,9 +34,12 @@ def document_ids():
                 yield x['archive_serial_number']
 
 def push_document(http, doc: Document):
+    push(http, doc.data, f'{doc.id:010d}', f'{doc.id:010d}.pdf')
+
+def push(http, doc: bytes, title: str, filename: str):
     http.request('POST', f'{paperless_endpoint()}/api/documents/post_document/',
                  headers = authorization_header(),
                  fields = {
-                     'title': f'{doc.id:010d}',
-                     'document': (f'{doc.id:010d}.pdf', doc.data, 'application/pdf')
+                     'title': title,
+                     'document': (filename, doc, 'application/pdf')
                  })
